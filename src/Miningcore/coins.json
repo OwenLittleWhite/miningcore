@@ -256,9 +256,9 @@
         "explorerTxLink": "https://blocks.notebc.space/tx/{0}",
         "explorerAccountLink": "https://blocks.notebc.space/address/{0}"
     },
-    
+
     // Peercoin is not working as they have switched to hybrib POW + POS. Tested, block orphans 100% of time.
-   
+
     "peercoin": {
         "name": "Peercoin",
         "symbol": "PPC",
@@ -570,7 +570,7 @@
         "explorerAccountLink": "https://chainz.cryptoid.info/cann/address.dws?{0}.htm"
     },
 
-// Ravencoin is currently not working. X16r is OLD algorithm. KawPow is Ravencoin's current algo.    
+// Ravencoin is currently not working. X16r is OLD algorithm. KawPow is Ravencoin's current algo.
     "ravencoin": {
         "name": "Ravencoin",
         "symbol": "RVN",
@@ -1501,5 +1501,14 @@
         "explorerBlockLink": "https://explorer.ergoplatform.com/en/blocks/$hash$",
         "explorerTxLink": "https://explorer.ergoplatform.com/en/transactions/{0}",
         "explorerAccountLink": "https://explorer.ergoplatform.com/en/addresses/{0}"
+    },
+    "tari": {
+        "name": "Tari",
+        "symbol": "XTR",
+        "family": "tari",
+        "hash": "sha3",
+        "hashVariant": 0,
+        "smallestUnit": 1000000,
+        "explorerBlockLink": "https://explore.tari.com/block/$height$",
     }
 }

@@ -1,0 +1,123 @@
+﻿{
+    "logging": {
+        "level": "info",
+        "enableConsoleLog": true,
+        "enableConsoleColors": true,
+        "logFile": "core.log",
+        "apiLogFile": "api.log",
+        "logBaseDirectory": "C:\\MiningCoreLogs", // or ./path/to/logs on Linux
+        "perPoolLogFile": true
+    },
+    "banning": {
+        "manager": "integrated",
+        "banOnJunkReceive": false,
+        "banOnInvalidShares": false
+    },
+    "notifications": {
+        "enabled": true,
+        "email": {
+            "host": "smtp.example.com",
+            "port": 587,
+            "user": "user",
+            "password": "password",
+            "fromAddress": "info@yourpool.org",
+            "fromName": "pool support"
+        },
+        "admin": {
+            "enabled": false,
+            "emailAddress": "user@example.com",
+            "notifyBlockFound": true
+        }
+    },
+
+    "persistence": {
+        "postgres": {
+            "host": "127.0.0.1",
+            "port": 5432,
+            "user": "miningcore",
+            "password": "miningcore",
+            "database": "miningcore"
+        }
+    },
+	
+    "paymentProcessing": {
+        "enabled": true,
+        "interval": 600,
+        "shareRecoveryFile": "recovered-shares.txt"
+    },
+
+    "api": {
+        "enabled": true,
+        "listenAddress": "127.0.0.1",
+        "port": 4000,
+        "metricsIpWhitelist": [],
+        "rateLimiting": {
+            "disabled": false,
+            "rules": [
+                {
+                    "Endpoint": "*",
+                    "Period": "1s",
+                    "Limit": 5
+                }
+            ],
+            "ipWhitelist": []
+        }
+    },
+    "pools": [
+        {
+            "id": "tari1",
+            "enabled": true,
+            "coin": "tari",
+            "address": "9ce09c91a9fe84a75a2e0c403d0e3c38c25c45cdb0beaae868560416a611eb5d", // Not used, handled by transcoder, but useful to fill this in to keep track of the wallet to which the transcoder is connected to.
+            "rewardRecipients": [
+                {
+                    // Where pool rewards should be sent to, usually the pool wallet
+                    "address": "9ce09c91a9fe84a75a2e0c403d0e3c38c25c45cdb0beaae868560416a611eb5d",
+                    "percentage": 1.5
+                }
+            ],
+            "blockRefreshInterval": 10000,
+            "jobRebroadcastTimeout": 10,
+            "clientConnectionTimeout": 600,
+            "banning": {
+                "enabled": true,
+                "time": 600,
+                "invalidPercent": 50,
+                "checkThreshold": 50
+            },
+            "ports": {
+                "3052": {
+                    "listenAddress": "0.0.0.0",
+                    "difficulty": 0.02,
+                    "tls": false,
+                    "tlsPfxFile": "/var/lib/certs/mycert.pfx",
+                    "varDiff": {
+                        "minDiff": 4000000.00,
+                        "maxDiff": null,
+                        "targetTime": 15,
+                        "retargetTime": 90,
+                        "variancePercent": 30,
+                        "maxDelta": 500000
+                    }
+                }
+            },
+			// Connection details for the tari_stratum_transcoder. This application functions as both the daemon and the wallet daemon in the context of the pool.
+            "daemons": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 7879,
+                    "user": "user",
+                    "password": "pass",
+                }
+            ],
+            "paymentProcessing": {
+                "enabled": true,
+                "minimumPayment": 0.01,
+                "payoutScheme": "PPLNS",
+                "payoutSchemeConfig": {
+                    "factor": 2.0
+                }
+            }
+        }
+    ]
+}

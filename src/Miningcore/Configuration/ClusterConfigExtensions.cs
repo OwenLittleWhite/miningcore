@@ -209,6 +209,18 @@ namespace Miningcore.Configuration
         #endregion
     }
 
+    public partial class TariCoinTemplate
+    {
+        #region Overrides of CoinTemplate
+
+        public override string GetAlgorithmName()
+        {
+            return "SHA3";
+        }
+
+        #endregion
+    }
+
     public partial class PoolConfig
     {
         /// <summary>
