@@ -277,11 +277,9 @@ namespace Miningcore.Stratum
                 {
                     // Scan buffer for line terminator
                     position = buffer.PositionOf((byte) '\n');
-
                     if(position != null)
                     {
                         var slice = buffer.Slice(0, position.Value);
-
                         if(!expectingProxyHeader || !ProcessProxyHeader(slice, proxyProtocol))
                             await ProcessRequestAsync(ct, onRequestAsync, slice);
 
@@ -310,7 +308,6 @@ namespace Miningcore.Stratum
         private async Task SendMessage(object msg, CancellationToken ct)
         {
             logger.Debug(() => $"[{ConnectionId}] Sending: {JsonConvert.SerializeObject(msg)}");
-
             var buffer = ArrayPool<byte>.Shared.Rent(MaxOutboundRequestLength);
 
             try

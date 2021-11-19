@@ -29,6 +29,9 @@ namespace Miningcore.Configuration
 
         [EnumMember(Value = "ergo")]
         Ergo,
+
+        [EnumMember(Value = "tari")]
+        Tari,
     }
 
     public abstract partial class CoinTemplate
@@ -100,6 +103,7 @@ namespace Miningcore.Configuration
             {CoinFamily.Cryptonote, typeof(CryptonoteCoinTemplate)},
             {CoinFamily.Ethereum, typeof(EthereumCoinTemplate)},
             {CoinFamily.Ergo, typeof(ErgoCoinTemplate)},
+            {CoinFamily.Tari, typeof(TariCoinTemplate)},
         };
     }
 
@@ -349,6 +353,37 @@ namespace Miningcore.Configuration
     }
 
     #endregion // Coin Definitions
+    public enum TariSubfamily
+    {
+        [EnumMember(Value = "none")]
+        None,
+    }
+
+    public partial class TariCoinTemplate : CoinTemplate
+    {
+        public partial class TariNetworkParams
+        {
+            public string Network { get; set; }
+            public string BlockchainVersion { get; set; }
+        }
+
+        [JsonProperty(Order = -7, DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [DefaultValue(TariSubfamily.None)]
+        [JsonConverter(typeof(StringEnumConverter), true)]
+        public TariSubfamily Subfamily { get; set; }
+
+        public Dictionary<string, TariNetworkParams> Networks { get; set; }
+
+        /// <summary>
+        /// Fraction of block reward, the pool really gets to keep
+        /// </summary>
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [DefaultValue(1.0d)]
+        public decimal BlockrewardMultiplier { get; set; }
+
+        [DefaultValue(1000000d)]
+        public decimal SmallestUnit { get; set; }
+    }
 
     public enum PayoutScheme
     {
