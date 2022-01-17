@@ -1685,5 +1685,14 @@
         "explorerBlockLink": "https://explorer.ergoplatform.com/en/blocks/$hash$",
         "explorerTxLink": "https://explorer.ergoplatform.com/en/transactions/{0}",
         "explorerAccountLink": "https://explorer.ergoplatform.com/en/addresses/{0}"
+    },
+    "tari": {
+        "name": "Tari",
+        "symbol": "XTR",
+        "family": "tari",
+        "hash": "sha3",
+        "hashVariant": 0,
+        "smallestUnit": 1000000,
+        "explorerBlockLink": "https://explore.tari.com/block/$height$",
     }
 }

@@ -273,11 +273,9 @@ public class StratumConnection
             {
                 // Scan buffer for line terminator
                 position = buffer.PositionOf((byte) '\n');
-
                 if(position != null)
                 {
                     var slice = buffer.Slice(0, position.Value);
-
                     if(!expectingProxyHeader || !ProcessProxyHeader(slice, proxyProtocol))
                         await ProcessRequestAsync(ct, onRequestAsync, slice);
 

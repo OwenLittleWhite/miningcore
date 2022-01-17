@@ -105,7 +105,7 @@
     <!-- Reference pre-built library binaries on Windows  -->
     <ItemGroup Condition="'$(IsWindows)' == 'true'">
         <NativeLibs Include="$(ProjectDir)..\..\libs\runtimes\win-x64\*.dll" />
-        <None Include="@(NativeLibs)" Visible="False">
+		<None Include="@(NativeLibs)" Visible="False">
             <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -116,6 +116,19 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
+	
+	<Target Name="BuildNativeLibsWin" AfterTargets="AfterBuild" Condition="'$(IsWindows)' == 'true'">
+		 <ItemGroup>
+			<Libs Include="$(ProjectDir)..\Native\libtari\tari_stratum_ffi.dll" />
+				<ContentWithTargetPath Include="@(Libs->'%(FullPath)')" RelativePath="%(Libs.Identity)" TargetPath="%(Libs.Filename)%(Libs.Extension)" CopyToPublishDirectory="PreserveNewest" />
+		</ItemGroup>
+		<Copy SourceFiles="@(Libs)" DestinationFolder="$(OutDir)" />
+		<ItemGroup>
+			<None Update="tari_stratum_ffi.dll">
+				<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			</None>
+		</ItemGroup>
+	</Target>
 
     <!-- Build library binaries from source on Linux -->
     <Target Name="BuildNativeLibsLinux" AfterTargets="AfterBuild" Condition="'$(IsLinux)' == 'true'">
@@ -125,6 +138,7 @@
         <Exec Command="(cd $(ProjectDir)../Native/libcryptonight &amp;&amp; make clean &amp;&amp; make) &amp;&amp; mv $(ProjectDir)../Native/libcryptonight/libcryptonight.so $(OutDir)" />
         <Exec Command="(cd /tmp &amp;&amp; rm -rf RandomX &amp;&amp; git clone https://github.com/tevador/RandomX &amp;&amp; cd RandomX &amp;&amp; git checkout tags/v1.1.10 &amp;&amp; mkdir build &amp;&amp; cd build &amp;&amp; cmake -DARCH=native .. &amp;&amp; make &amp;&amp; cp librandomx.a $(ProjectDir)../Native/librandomx) &amp;&amp; (cd $(ProjectDir)../Native/librandomx &amp;&amp; make clean &amp;&amp; make) &amp;&amp; mv $(ProjectDir)../Native/librandomx/librandomx.so $(OutDir)" />
         <Exec Command="(cd /tmp &amp;&amp; rm -rf RandomARQ &amp;&amp; git clone https://github.com/arqma/RandomARQ &amp;&amp; cd RandomARQ &amp;&amp; git checkout 14850620439045b319fa6398f5a164715c4a66ce &amp;&amp; mkdir build &amp;&amp; cd build &amp;&amp; cmake -DARCH=native .. &amp;&amp; make &amp;&amp; cp librandomx.a $(ProjectDir)../Native/librandomarq) &amp;&amp; (cd $(ProjectDir)../Native/librandomarq &amp;&amp; make clean &amp;&amp; make) &amp;&amp; mv $(ProjectDir)../Native/librandomarq/librandomarq.so $(OutDir)" />
+	<Exec Command="cp $(ProjectDir)../Native/libtari/libtari_stratum_ffi.so $(OutDir)" />
     </Target>
 
     <!-- Include library binaries in publish on Windows -->
@@ -133,6 +147,10 @@
             <Libs Include="$(ProjectDir)..\..\libs\runtimes\win-x64\*.dll" />
             <ContentWithTargetPath Include="@(Libs->'%(FullPath)')" RelativePath="%(Libs.Identity)" TargetPath="%(Libs.Filename)%(Libs.Extension)" CopyToPublishDirectory="PreserveNewest" />
         </ItemGroup>
+        <ItemGroup>
+          <Libs Include="$(ProjectDir)..\Native\libtari\tari_stratum_ffi.dll" />
+          <ContentWithTargetPath Include="@(Libs->'%(FullPath)')" RelativePath="%(Libs.Identity)" TargetPath="%(Libs.Filename)%(Libs.Extension)" CopyToPublishDirectory="PreserveNewest" />
+        </ItemGroup>
     </Target>
 
     <!-- Include library binaries in publish on Linux -->
@@ -140,6 +158,10 @@
         <ItemGroup>
             <Libs Include="$(OutDir)*.so" />
             <ContentWithTargetPath Include="@(Libs->'%(FullPath)')" RelativePath="%(Libs.Identity)" TargetPath="%(Libs.Filename)%(Libs.Extension)" CopyToPublishDirectory="PreserveNewest" />
+        </ItemGroup>
+        <ItemGroup>
+          <Libs Include="$(ProjectDir)../Native/libtari/libtari_stratum_ffi.so" />
+          <ContentWithTargetPath Include="@(Libs->'%(FullPath)')" RelativePath="%(Libs.Identity)" TargetPath="%(Libs.Filename)%(Libs.Extension)" CopyToPublishDirectory="PreserveNewest" />
         </ItemGroup>
     </Target>
 </Project>

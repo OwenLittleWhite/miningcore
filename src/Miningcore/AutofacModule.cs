@@ -20,6 +20,7 @@ using Newtonsoft.Json.Serialization;
 using Module = Autofac.Module;
 using Microsoft.AspNetCore.Mvc;
 using Miningcore.Blockchain.Ergo;
+using Miningcore.Blockchain.Tari;
 using Miningcore.Nicehash;
 using Miningcore.Pushover;
 
@@ -163,6 +164,10 @@ public class AutofacModule : Module
 
         builder.RegisterType<EquihashJobManager>();
         builder.RegisterType<ErgoJobManager>();
+
+            /////////////////////
+            // Tari
+            builder.RegisterType<TariJobManager>();
 
         base.Load(builder);
     }
