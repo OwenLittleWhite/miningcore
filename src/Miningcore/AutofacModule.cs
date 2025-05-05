@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Module = Autofac.Module;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IO;
 using Miningcore.Blockchain.Ergo;
 using Miningcore.Blockchain.Tari;
 using Miningcore.Nicehash;
@@ -51,6 +52,11 @@ public class AutofacModule : Module
         builder.RegisterType<MessageBus>()
             .AsImplementedInterfaces()
             .SingleInstance();
+
+        builder.RegisterInstance(new RecyclableMemoryStreamManager
+        {
+            ThrowExceptionOnToArray = true
+        });
 
         builder.RegisterType<StandardClock>()
             .AsImplementedInterfaces()

@@ -2,13 +2,12 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using AspNetCoreRateLimit;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
-
+// ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
 
 namespace Miningcore.Configuration;
@@ -61,6 +60,13 @@ public abstract partial class CoinTemplate
     /// </summary>
     [JsonProperty(Order = -9)]
     public string Website { get; set; }
+
+    /// <summary>
+    /// Market
+    /// </summary>
+    [JsonProperty(Order = -9)]
+    public string Market { get; set; }
+
 
     /// <summary>
     /// Family
@@ -181,11 +187,20 @@ public partial class BitcoinTemplate : CoinTemplate
     public bool HasMasterNodes { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool HasBrokenSendMany { get; set; } = false;
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool HasFounderFee { get; set; }
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+    public bool HasMinerFund { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
     [DefaultValue(1.0d)]
     public double ShareMultiplier { get; set; } = 1.0d;
+
+    [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+    public double? HashrateMultiplier { get; set; }
 
     [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
     public bool CoinbaseIgnoreAuxFlags { get; set; }
@@ -427,16 +442,34 @@ public partial class CryptonoteCoinTemplate : CoinTemplate
     public ulong AddressPrefix { get; set; }
 
     /// <summary>
+    /// Sub Prefix of a valid sub address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefix { get; set; }
+
+    /// <summary>
     /// Prefix of a valid testnet-address
     /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
     /// </summary>
     public ulong AddressPrefixTestnet { get; set; }
 
     /// <summary>
+    /// Sub Prefix of a valid testnet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefixTestnet { get; set; }
+
+    /// <summary>
     /// Prefix of a valid stagenet-address
     /// See: namespace config -> CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX in src/cryptonote_config.h
     /// </summary>
     public ulong AddressPrefixStagenet { get; set; }
+
+    /// <summary>
+    /// Sub Prefix of a valid stagenet-address
+    /// See: namespace config -> CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX in src/cryptonote_config.h
+    /// </summary>
+    public ulong SubAddressPrefixStagenet { get; set; }
 
     /// <summary>
     /// Prefix of a valid integrated address
@@ -524,7 +557,6 @@ public enum PayoutScheme
     PPBS = 5,
 }
 
-[UsedImplicitly]
 public partial class ClusterLoggingConfig
 {
     public string Level { get; set; }
@@ -534,6 +566,7 @@ public partial class ClusterLoggingConfig
     public string ApiLogFile { get; set; }
     public bool PerPoolLogFile { get; set; }
     public string LogBaseDirectory { get; set; }
+    public bool GPDRCompliant { get; set; }
 }
 
 public partial class NetworkEndpointConfig
@@ -577,13 +610,46 @@ public class DaemonEndpointConfig : AuthenticatedNetworkEndpointConfig
     public IDictionary<string, object> Extra { get; set; }
 }
 
-[UsedImplicitly]
 public class DatabaseConfig : AuthenticatedNetworkEndpointConfig
 {
     public string Database { get; set; }
 }
 
-[UsedImplicitly]
+public class PostgresConfig : DatabaseConfig
+{
+    /// <summary>
+    /// Enable Transport layer security (TLS)
+    /// </summary>
+    public bool Tls { get; set; }
+
+    /// <summary>
+    /// Location of a client certificate to be sent to the server (.PFX or .PEM)
+    /// </summary>
+    public string TlsCert { get; set; }
+
+    /// <summary>
+    /// Location of a client certificate private key to be sent to the server
+    /// </summary>
+    public string TlsKey { get; set; }
+
+    /// <summary>
+    /// Client certificate password
+    /// </summary>
+    public string TlsPassword { get; set; }
+
+    /// <summary>
+    /// Trust (self-signed) server certificate
+    /// </summary>
+    public bool TlsNoValidate { get; set; }
+
+    public int? CommandTimeout { get; set; }
+
+    /// <summary>
+    /// Enable Enabling Npgsql Legacy Timestamp Behavior
+    /// </summary>
+    public bool? EnableLegacyTimestamps { get; set; }
+}
+
 public class TcpProxyProtocolConfig
 {
     /// <summary>
@@ -602,7 +668,6 @@ public class TcpProxyProtocolConfig
     public string[] ProxyAddresses { get; set; }
 }
 
-[UsedImplicitly]
 public class PoolEndpoint
 {
     public string ListenAddress { get; set; }
@@ -635,7 +700,6 @@ public class PoolEndpoint
     public string TlsPfxPassword { get; set; }
 }
 
-[UsedImplicitly]
 public partial class VarDiffConfig
 {
     /// <summary>
@@ -675,7 +739,6 @@ public enum BanManagerKind
     IpTables
 }
 
-[UsedImplicitly]
 public class ClusterBanningConfig
 {
     public BanManagerKind? Manager { get; set; }
@@ -689,9 +752,13 @@ public class ClusterBanningConfig
     /// Ban miners for crossing invalid share threshold
     /// </summary>
     public bool? BanOnInvalidShares { get; set; }
+
+    /// <summary>
+    /// Ban clients sending invalid logins
+    /// </summary>
+    public bool? BanOnLoginFailure { get; set; }
 }
 
-[UsedImplicitly]
 public partial class PoolShareBasedBanningConfig
 {
     public bool Enabled { get; set; }
@@ -700,7 +767,6 @@ public partial class PoolShareBasedBanningConfig
     public int Time { get; set; } // How many seconds to ban worker for
 }
 
-[UsedImplicitly]
 public partial class PoolPaymentProcessingConfig
 {
     public bool Enabled { get; set; }
@@ -715,7 +781,6 @@ public partial class PoolPaymentProcessingConfig
     public IDictionary<string, object> Extra { get; set; }
 }
 
-[UsedImplicitly]
 public partial class ClusterPaymentProcessingConfig
 {
     public bool Enabled { get; set; }
@@ -727,10 +792,9 @@ public partial class ClusterPaymentProcessingConfig
     public string CoinbaseString  { get; set; }
 }
 
-[UsedImplicitly]
 public partial class PersistenceConfig
 {
-    public DatabaseConfig Postgres { get; set; }
+    public PostgresConfig Postgres { get; set; }
 }
 
 public class RewardRecipient
@@ -744,14 +808,12 @@ public class RewardRecipient
     public string Type { get; set; }
 }
 
-[UsedImplicitly]
 public partial class EmailSenderConfig : AuthenticatedNetworkEndpointConfig
 {
     public string FromAddress { get; set; }
     public string FromName { get; set; }
 }
 
-[UsedImplicitly]
 public class PushoverConfig
 {
     public bool Enabled { get; set; }
@@ -759,7 +821,6 @@ public class PushoverConfig
     public string Token { get; set; }
 }
 
-[UsedImplicitly]
 public partial class AdminNotifications
 {
     public bool Enabled { get; set; }
@@ -768,7 +829,6 @@ public partial class AdminNotifications
     public bool NotifyPaymentSuccess { get; set; }
 }
 
-[UsedImplicitly]
 public partial class NotificationsConfig
 {
     public bool Enabled { get; set; }
@@ -778,7 +838,6 @@ public partial class NotificationsConfig
     public AdminNotifications Admin { get; set; }
 }
 
-[UsedImplicitly]
 public class ApiRateLimitConfig
 {
     public bool Disabled { get; set; }
@@ -787,7 +846,6 @@ public class ApiRateLimitConfig
     public string[] IpWhitelist { get; set; }
 }
 
-[UsedImplicitly]
 public class ApiTlsConfig
 {
     public bool Enabled { get; set; }
@@ -796,7 +854,6 @@ public class ApiTlsConfig
 }
 
 
-[UsedImplicitly]
 public partial class ApiConfig
 {
     public bool Enabled { get; set; }
@@ -828,9 +885,13 @@ public partial class ApiConfig
     /// If this list null or empty, the default is 127.0.0.1
     /// </summary>
     public string[] MetricsIpWhitelist { get; set; }
+
+    /// <summary>
+    /// Enable serialization of null values in API responses
+    /// </summary>
+    public bool LegacyNullValueHandling { get; set; }
 }
 
-[UsedImplicitly]
 public class ZmqPubSubEndpointConfig
 {
     public string Url { get; set; }
@@ -840,7 +901,6 @@ public class ZmqPubSubEndpointConfig
     public string SharedEncryptionKey { get; set; }
 }
 
-[UsedImplicitly]
 public class ShareRelayEndpointConfig
 {
     public string Url { get; set; }
@@ -851,7 +911,6 @@ public class ShareRelayEndpointConfig
     public string SharedEncryptionKey { get; set; }
 }
 
-[UsedImplicitly]
 public class ShareRelayConfig
 {
     public string PublishUrl { get; set; }
@@ -865,7 +924,6 @@ public class ShareRelayConfig
     public string SharedEncryptionKey { get; set; }
 }
 
-[UsedImplicitly]
 public class Statistics
 {
     /// <summary>
@@ -889,7 +947,7 @@ public class Statistics
     public int? CleanupDays { get; set; }
 
 }
-[UsedImplicitly]
+
 public class NicehashClusterConfig
 {
     /// <summary>
@@ -898,7 +956,21 @@ public class NicehashClusterConfig
     public bool EnableAutoDiff { get; set; }
 }
 
-[UsedImplicitly]
+public class ClusterMemoryConfig
+{
+    /// <summary>
+    /// RecyclableMemoryStream MaximumFreeSmallPoolBytes
+    /// WARNING: Don't use this if you don't know what you are doing
+    /// </summary>
+    public int? RmsmMaximumFreeSmallPoolBytes { get; set; }
+
+    /// <summary>
+    /// RecyclableMemoryStream MaximumFreeLargePoolBytes
+    /// WARNING: Don't use this if you don't know what you are doing
+    /// </summary>
+    public int? RmsmMaximumFreeLargePoolBytes { get; set; }
+}
+
 public partial class PoolConfig
 {
     /// <summary>
@@ -936,13 +1008,17 @@ public partial class PoolConfig
     public bool? EnableInternalStratum { get; set; }
 
     /// <summary>
+    /// Interval in seconds for performing sweeps over connected miners operating on a too high diff to submit shares and adjust varDiff down
+    /// </summary>
+    public int? VardiffIdleSweepInterval { get; set; }
+
+    /// <summary>
     /// Arbitrary extension data
     /// </summary>
     [JsonExtensionData]
     public IDictionary<string, object> Extra { get; set; }
 }
 
-[UsedImplicitly]
 public partial class ClusterConfig
 {
     /// <summary>
@@ -964,6 +1040,7 @@ public partial class ClusterConfig
     public ApiConfig Api { get; set; }
     public Statistics Statistics { get; set; }
     public NicehashClusterConfig Nicehash { get; set; }
+    public ClusterMemoryConfig Memory { get; set; }
 
     /// <summary>
     /// If this is enabled, shares are not written to the database
